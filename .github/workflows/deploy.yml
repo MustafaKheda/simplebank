@@ -18,7 +18,7 @@ jobs:
         image: postgres:17.5
         # Provide the password for postgres
         env:
-          POSTGRES_PASSWORD: secret
+          POSTGRES_PASSWORD: 1234
           POSTGRES_USER: root
           POSTGRES_DB: simple_bank
         # Set health checks to wait until postgres has started
@@ -43,6 +43,9 @@ jobs:
           curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.3/migrate.linux-amd64.tar.gz | tar xvz
           sudo mv migrate /usr/bin
           which migrate
+
+      - name: Set DB connection string
+        run: echo "DB_SOURCE=postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" >> $GITHUB_ENV
 
       - name: Run migration
         run: make migrateup    
