@@ -2,17 +2,13 @@ package db
 
 import (
 	"database/sql"
-	"github/MustafaKheda/simplebank/util"
 	"log"
 	"os"
 	"testing"
 
-	_ "github.com/lib/pq"
-)
+	"github.com/MustafaKheda/simplebank/util"
 
-const (
-	dbDriver = "postgres"
-	dbSource = "postgresql://root:1234@localhost:5432/simple_bank?sslmode=disable"
+	_ "github.com/lib/pq"
 )
 
 var testQueries *Queries

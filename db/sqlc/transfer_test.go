@@ -2,9 +2,10 @@ package db
 
 import (
 	"context"
-	"github/MustafaKheda/simplebank/util"
 	"testing"
 	"time"
+
+	"github.com/MustafaKheda/simplebank/util"
 
 	"github.com/stretchr/testify/require"
 )

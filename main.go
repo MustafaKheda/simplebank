@@ -2,18 +2,13 @@ package main
 
 import (
 	"database/sql"
-	"github/MustafaKheda/simplebank/api"
-	db "github/MustafaKheda/simplebank/db/sqlc"
-	"github/MustafaKheda/simplebank/util"
 	"log"
 
-	_ "github.com/lib/pq"
-)
+	"github.com/MustafaKheda/simplebank/api"
+	db "github.com/MustafaKheda/simplebank/db/sqlc"
+	"github.com/MustafaKheda/simplebank/util"
 
-const (
-	dbDriver      = "postgres"
-	dbSource      = "postgresql://root:1234@localhost:5432/simple_bank?sslmode=disable"
-	serverAddress = "0.0.0.0:8080"
+	_ "github.com/lib/pq"
 )
 
 func main() {
