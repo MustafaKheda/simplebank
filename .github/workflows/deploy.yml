@@ -1,51 +1,33 @@
-name: Go-test
+name: Deploy Application
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
-  test:
-    name: Test
+  build:
+    name: Build Image
     runs-on: ubuntu-latest
 
-    services:
-      # Label used to access the service container
-      postgres:
-        # Docker Hub image
-        image: postgres:17.5
-        # Provide the password for postgres
-        env:
-          POSTGRES_PASSWORD: 1234
-          POSTGRES_USER: root
-          POSTGRES_DB: simple_bank
-        # Set health checks to wait until postgres has started
-        ports:
-         - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
-      - uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
         with:
-          go-version: '1.24.5'
-
-      - name: Install golang-migrateu
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1  # Change to your region
+    
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      
+      - name: Build, tag, and push docker image to Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: simplebank
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.3/migrate.linux-amd64.tar.gz | tar xvz
-          sudo mv migrate /usr/bin
-          which migrate
-
-      - name: Run migration
-        run: make migrateup    
-
-      - name: Test
-        run: make test
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+   
