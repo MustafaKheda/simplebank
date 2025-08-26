@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: nginx
+spec:
+  controller: k8s.io/ingress-nginx
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: simple-bank-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt"  # 👈 This is important
+spec:
+  ingressClassName: nginx   # 👈 This is what tells NGINX to pick it up
+  rules:
+  - host: "api.kuwaitcosmetics.com"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: simple-bank-api-service
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - "api.kuwaitcosmetics.com"
+    secretName: simple-bank-api-cert # 👈 This is important
