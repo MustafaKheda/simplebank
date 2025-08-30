@@ -26,13 +26,11 @@ jobs:
            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
            aws-region: ap-south-1
-           mask-aws-account-id: 'false'
 
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-        with:
-          mask-password: 'false'
+        
       - name: Load secert and load in app.env file
         run: aws secretsmanager get-secret-value --secret-id simple-bank --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > app.env
       
@@ -48,7 +46,7 @@ jobs:
 
       - name: Set up Kubeconfig
         run: |
-         aws eks update-kubeconfig --region ap-south-1 --name simple_bank   
+         aws eks update-kubeconfig --name simple_bank --region ap-south-1    
 
       - name: Deploy Image to Amazon EKS
         run: |
