@@ -10,9 +10,9 @@ kind: Ingress
 metadata:
   name: simple-bank-ingress
   annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt"  # 👈 This is important
+    cert-manager.io/cluster-issuer: "letsencrypt"
 spec:
-  ingressClassName: nginx   # 👈 This is what tells NGINX to pick it up
+  ingressClassName: nginx
   rules:
   - host: "api.kuwaitcosmetics.com"
     http:
@@ -27,4 +27,4 @@ spec:
   tls:
   - hosts:
     - "api.kuwaitcosmetics.com"
-    secretName: simple-bank-api-cert # 👈 This is important
+    secretName: simple-bank-api-cert            
