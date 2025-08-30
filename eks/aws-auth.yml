@@ -4,16 +4,14 @@
     name: aws-auth
     namespace: kube-system
   data: 
-  
+    mapRoles: |
+      - rolearn: arn:aws:iam::545829658419:role/AWSEKSNodeRole
+        username: system:node:{{EC2PrivateDNSName}}
+        groups:
+          - system:bootstrappers
+          - system:nodes
     mapUsers: |
       - userarn: arn:aws:iam::545829658419:user/github-cli
         username: github-cli
         groups:
           - system:masters
-    
-    mapRoles: |
-     - groups:
-        - system:bootstrappers
-        - system:nodes
-      rolearn: arn:aws:iam::545829658419:role/AWSEKSNodeRole
-      username: system:node:{{EC2PrivateDNSName}}
