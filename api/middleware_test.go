@@ -15,8 +15,9 @@ import (
 func addAuthorization(t *testing.T, request *http.Request, tokenMaker token.Maker, authorizationType string, username string, duration time.Duration) {
 	// This function adds an authorization header to the request.
 	// It generates a token for the given username and sets it in the request header.
-	token, err := tokenMaker.CreateToken(username, duration)
+	token, payload, err := tokenMaker.CreateToken(username, duration)
 	require.NoError(t, err)
+	require.NotEmpty(t, payload)
 
 	authorizationHeader := fmt.Sprintf("%s %s", authorizationType, token)
 	request.Header.Set(AuthorizationHeaderKey, authorizationHeader)
