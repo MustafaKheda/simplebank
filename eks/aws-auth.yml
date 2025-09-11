@@ -5,10 +5,11 @@
     namespace: kube-system
   data: 
     mapRoles: |
-     - rolearn: arn:aws:iam::545829658419:role/EKSAdminRole
-       username: root
-       groups:
-         - system:masters
+     - rolearn: arn:aws:iam::545829658419:role/AWSEKSNodeRole
+      username: system:node:{{EC2PrivateDNSName}}
+      groups:
+        - system:nodes
+        - system:bootstrappers
     mapUsers: |
       - userarn: arn:aws:iam::545829658419:user/github-cli
         username: github-cli
