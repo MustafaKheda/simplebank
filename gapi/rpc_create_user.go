@@ -1,0 +1,63 @@
+package gapi
+
+import (
+	"context"
+
+	db "github.com/MustafaKheda/simplebank/db/sqlc"
+	"github.com/MustafaKheda/simplebank/pb"
+	"github.com/MustafaKheda/simplebank/util"
+	"github.com/MustafaKheda/simplebank/val"
+	"github.com/lib/pq"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
+	violations := validateCreateUser(req)
+	if violations != nil {
+		return nil, invalidArgumentError(violations)
+	}
+	hashPassword, err := util.HashPassword(req.GetPassword())
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to hashed password: %s", err)
+
+	}
+	arg := db.CreateUserParams{
+		FullName:       req.GetFullName(),
+		Email:          req.GetEmail(),
+		HashedPassword: hashPassword,
+		Username:       req.GetUsername(),
+	}
+
+	user, err := server.store.CreateUser(ctx, arg)
+	if err != nil {
+		if pqError, ok := err.(*pq.Error); ok {
+			switch pqError.Code.Name() {
+			case "unique_violation":
+				return nil, status.Errorf(codes.AlreadyExists, "username already exists: %s", err)
+			}
+		}
+		return nil, status.Errorf(codes.Internal, "failed to create user: %s", err)
+
+	}
+	rsp := &pb.CreateUserResponse{
+		User: convertUser(user),
+	}
+	return rsp, nil
+}
+func validateCreateUser(req *pb.CreateUserRequest) (violations []*errdetails.BadRequest_FieldViolation) {
+	if err := val.ValidateUsername(req.GetUsername()); err != nil {
+		violations = append(violations, fieldViolations("username", err))
+	}
+	if err := val.ValidatePassword(req.GetPassword()); err != nil {
+		violations = append(violations, fieldViolations("password", err))
+	}
+	if err := val.ValidateFullName(req.GetFullName()); err != nil {
+		violations = append(violations, fieldViolations("full_name", err))
+	}
+	if err := val.ValidateEmail(req.GetEmail()); err != nil {
+		violations = append(violations, fieldViolations("email", err))
+	}
+	return violations
+}
